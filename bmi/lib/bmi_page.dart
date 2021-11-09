@@ -1,4 +1,6 @@
 
+import 'package:bmi/list_page.dart';
+import 'package:bmi/user_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -39,17 +41,27 @@ class _BmiPageState extends State<BmiPage> {
 
           GestureDetector(
             onTap: () async {
-              await FirebaseAuth.instance.signOut();
-              Get.offAll(() => const LoginPage());
-
-
+              //사용자 정보보기 ,목록보기 버튼2개
+              Get.to(()=> const UserPage());
             },
             child: Container(
-              margin: const EdgeInsets.only(right: 50),
-              child: const Icon(Icons.logout),
+              margin: const EdgeInsets.only(right: 20),
+              child: const Icon(Icons.account_circle),
             ),
 
-          )
+          ),
+          GestureDetector(
+            onTap: () async {
+              //사용자 정보보기 ,목록보기 버튼2개
+              Get.to(()=> const ListPage());
+            },
+            child: Container(
+              margin: const EdgeInsets.only(right: 20),
+              child: const Icon(Icons.article),
+            ),
+
+          ),
+
         ],
       ),
 

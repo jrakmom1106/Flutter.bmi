@@ -1,6 +1,12 @@
-import 'package:bmi/main.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+
+import 'package:bmi/bmi_page.dart';
+import 'package:bmi/main.dart';
+import 'package:bmi/joinPage.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -14,7 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController(); //입력되는 값을 제어 , 검증
   final TextEditingController _passwordController = TextEditingController();
 
-  Widget _emailWidget(){
+  Widget _emailWidget() {
     return TextFormField(
 
       controller: _emailController,
@@ -25,21 +31,22 @@ class _LoginPageState extends State<LoginPage> {
 
       ),
 
-      validator: (String? value){
-        if (value!.isEmpty){ // == null isEmpty-> !.isEmpty
+      validator: (String? value) {
+        if (value!.isEmpty) { // == null isEmpty-> !.isEmpty
           return '이메일을 입력해 주세요';
         }
         return null;
       },
 
-      onChanged: (value){
+      onChanged: (value) {
         setState(() {
 
         });
       },
     );
   }
-  Widget _passwordWidget(){
+
+  Widget _passwordWidget() {
     return TextFormField(
 
       controller: _passwordController,
@@ -50,14 +57,14 @@ class _LoginPageState extends State<LoginPage> {
 
       ),
 
-      validator: (String? value){
-        if (value!.isEmpty){ // == null isEmpty-> !.isEmpty
+      validator: (String? value) {
+        if (value!.isEmpty) { // == null isEmpty-> !.isEmpty
           return ' 패스워드를 입력해 주세요';
         }
         return null;
       },
 
-      onChanged: (value){
+      onChanged: (value) {
         setState(() {
 
         });
@@ -99,46 +106,79 @@ class _LoginPageState extends State<LoginPage> {
                   child: const Text('로그인'),
                 ),
               ),
+              //회원가입버튼만들기
+              const SizedBox(height:20.0),
+              GestureDetector(
+                child: const Text(' 회원가입') ,
+                onTap: (){
+                  Get.to(()=> const JoinPage());
+                }
+              )
+
+
 
             ],
-
-
 
 
           ),
         ),
       ),
     );
-
-
-
-
   }
+
   @override
   void initState() {
     //해당 클래스가 호출되었을떄
     super.initState();
   }
+
   @override
   void dispose() {
     // 해당 클래스가 사라질떄
+
+    _emailController.dispose();
+    _passwordController.dispose();
+
     super.dispose();
   }
 
 
   _login() async {
-    //키보드 숨기기
-    FocusScope.of(context).requestFocus(FocusNode());
-    //사용자 등록 > firebase, user registration
-    try{
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
+    if (_formKey.currentState!.validate()) {
+      //키보드 숨기기
+      FocusScope.of(context).requestFocus(FocusNode());
+      //사용자 등록 > firebase, user registration
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: _emailController.text,
+          password: _passwordController.text,
+        );
+        Get.offAll(() => const BmiPage());
+      } on FirebaseAuthException catch (e) {
+        logger.e(e);
+        //값에 따라서 안내메시지 출력
+        String message = '';
+
+        if (e.code == 'user-not-found') {
+          message = '사용자가 존재하지 않습니다';
+        } else if (e.code == 'wrong-password') {
+          message = '비밀번호를 확인하세요';
+        } else if (e.code == 'invalid-email') {
+          message = '올바른 형식의 이메일을 입력해주세요';
+        }
+        /*
+      final snackBar = SnackBar(
+          content: Text(message),
+        backgroundColor: Colors.deepOrange,
       );
-
-    }on FirebaseAuthException catch (e){
-      logger.e(e);
-
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+*/
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.deepOrange,
+        ),
+        );
+      }
     }
   }
 }
